@@ -190,8 +190,13 @@ module CarrierWave
 
       def active_versions
         versions.select do |name, uploader|
-          condition = self.class.versions[name][:options][:if]
-          not condition or send(condition, file)
+          options = self.class.versions[name][:options]
+          condition = options.delete(:if)
+          not condition or if options.empty?
+            send(condition, file)
+          else
+            send(condition, file, options)
+          end
         end
       end
 
